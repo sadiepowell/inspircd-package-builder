@@ -23,13 +23,13 @@ jobs:
           echo "INSPIRCD_VERSION=${INSPIRCD_VERSION}" >> $GITHUB_OUTPUT
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runs-on }}
     env:
-      INSPIRCD_DEB_PLATFORMS: ${{ matrix.package == 'deb' && matrix.platform || null }}
-      INSPIRCD_RPM_PLATFORMS: ${{ matrix.package == 'rpm' && matrix.platform || null }}
+      INSPIRCD_DEB_PLATFORMS: ${{ matrix.type.package == 'deb' && matrix.type.platform || null }}
+      INSPIRCD_RPM_PLATFORMS: ${{ matrix.type.package == 'rpm' && matrix.type.platform || null }}
       INSPIRCD_IGNORE_WARNINGS: 1
       INSPIRCD_VERSION: ${{ needs.version.outputs.INSPIRCD_VERSION }}
-      INSPIRCD_PACKAGES: ${{ matrix.package }} html
+      INSPIRCD_PACKAGES: ${{ matrix.type.package }} html
       INSPIRCD_REVISION: ${{ github.sha }}
     needs:
       - version
@@ -44,7 +44,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
+        runs-on:
+          - ubuntu-26.04
+          - ubuntu-26.04-arm
+        type:
           - package: deb
             platform: debian-12
           - package: deb
